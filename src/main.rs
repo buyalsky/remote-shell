@@ -8,6 +8,8 @@ use std::str;
 
 mod config;
 
+const NULL_RESPONSE: &[u8] = " ".as_bytes();
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -16,9 +18,7 @@ fn main() {
         9 => client(parse_client_config(args)),
         _ => {
             println!(
-                "Usage for server: -p port -u username -s password
-                \n
-                Usage for client: -h host_address -p port -u username -s password"
+                "Usage for server: -p port -u username -s password\nUsage for client: -h host_address -p port -u username -s password"
             );
             exit(1);
         }
@@ -65,7 +65,12 @@ fn server(config: ServerConfig) {
                 Ok(output) => {
                     let output = str::from_utf8(&output.stdout).unwrap().trim();
                     println!("{:?}", output);
-                    stream.write(output.as_bytes()).unwrap();
+                    if output.len() == 0{
+                        stream.write(NULL_RESPONSE).unwrap();
+                    }
+                    else {
+                        stream.write(output.as_bytes()).unwrap();
+                    }
                 }
                 Err(e) => {
                     stream
