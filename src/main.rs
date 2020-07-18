@@ -28,7 +28,7 @@ fn main() {
 }
 
 fn server(config: ServerConfig) {
-    let address = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), config.port as u16);
+    let address = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), config.port as u16);
     let listener = TcpListener::bind(address).unwrap();
     let mut buffer = [0; 1024];
 
@@ -47,7 +47,6 @@ fn server(config: ServerConfig) {
 
         // remove trailing null characters
         let password = login_info.get(1).unwrap().trim_matches(char::from(0));
-
         if *username == config.username && *password == config.password {
             println!("Authentication succeed!");
             stream.write_all(AUTHENTICATED).unwrap();
@@ -89,8 +88,8 @@ fn server(config: ServerConfig) {
 
 fn client(config: ClientConfig) {
     let mut buffer = [0; 1024];
-    let address = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), config.port as u16);
-    let mut stream = TcpStream::connect(address).unwrap();
+    let mut stream =
+        TcpStream::connect(format!("{}:{}", config.host_address, config.port)).unwrap();
     println!("Connection established!");
     stream
         .write(format!("{} {}", config.username, config.password).as_bytes())
@@ -121,7 +120,9 @@ fn client(config: ClientConfig) {
 
         stream.write(command.as_bytes()).unwrap();
         let size = stream.read(&mut buffer).unwrap();
-        let command = String::from_utf8_lossy(&buffer[..size]);
-        println!("{}", command);
+        let response = String::from_utf8_lossy(&buffer[..size]);
+        if response.len() > 1 {
+            println!("{}", response);
+        }
     }
 }
