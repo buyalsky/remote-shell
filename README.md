@@ -1,11 +1,11 @@
 # remote-shell
 This repository contains a remote shell for learning purposes. 
-Client authenticates sending the specified username and password with server.
+Basically the client authenticates sending the specified username and password with server.
 After that the client takes commands from command line and sends those commands to the server through a tcp connection. 
 Server executes corresponding commands and sends the result back to client.
 
 ## Usage
-If you provide host name than the application acts as a client.
+If you provide host name then the application acts as a client.
 
 ### For server 
 
