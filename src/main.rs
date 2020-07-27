@@ -3,7 +3,7 @@ use std::env;
 use std::io;
 use std::io::{Read, Write};
 use std::net::{IpAddr, Ipv4Addr, Shutdown, SocketAddr, TcpListener, TcpStream};
-use std::process::{exit, Command};
+use std::process::{exit, Command, Stdio, Child};
 use std::str;
 
 mod config;
@@ -19,9 +19,8 @@ fn main() {
         7 => server(parse_server_config(args)),
         9 => client(parse_client_config(args)),
         _ => {
-            println!(
-                "Usage for server: -p port -u username -s password\nUsage for client: -h host_address -p port -u username -s password"
-            );
+            println!("Usage for server: -p port -u username -s password");
+            println!("Usage for client: -h host_address -p port -u username -s password");
             exit(1);
         }
     };
@@ -52,33 +51,49 @@ fn server(config: ServerConfig) {
             stream.write_all(AUTHENTICATED).unwrap();
 
             loop {
+                let mut previous_command = None;
                 let size = stream.read(&mut buffer).unwrap();
-                let command = String::from_utf8_lossy(&buffer[..size]);
-                if command.len() == 0 {
-                    exit(0);
+                let commands = String::from_utf8_lossy(&buffer[..size]);
+                if commands.len() == 0 {
+                    break
                 }
-                println!("{}", command);
-                let mut parts = command.trim().split_whitespace();
-                let command = parts.next().unwrap();
-                let args = parts;
-                let output = Command::new(command).args(args).output();
-                match output {
-                    Ok(output) => {
-                        let output = str::from_utf8(&output.stdout).unwrap().trim();
-                        println!("{:?}", output);
-                        if output.len() == 0 {
-                            stream.write(NULL_RESPONSE).unwrap();
-                        } else {
-                            stream.write(output.as_bytes()).unwrap();
+                let mut commands= commands.trim().split(" | ").peekable();
+
+                while let Some(command) = commands.next() {
+                    let stdin = previous_command.map_or(Stdio::inherit(),
+                    |output: Child| Stdio::from(output.stdout.unwrap()));
+                    let stdout = Stdio::piped();
+                    println!("{}", command);
+                    let mut parts = command.trim().split_whitespace();
+                    let command = parts.next().unwrap();
+                    let args = parts;
+                    let output = Command::new(command).args(args).stdin(stdin).stdout(stdout).spawn();
+                    match output {
+                        Ok(output) => { previous_command = Some(output); },
+                        Err(e) => {
+                            previous_command = None;
+                            eprintln!("{}", e);
+                        },
+                    };
+                }
+                    match previous_command.unwrap().wait_with_output() {
+                        Ok(output) => {
+                            let output = str::from_utf8(&output.stdout).unwrap().trim();
+                            println!("{:?}", output);
+                            if output.len() == 0 {
+                                stream.write(NULL_RESPONSE).unwrap();
+                            } else {
+                                stream.write(output.as_bytes()).unwrap();
+                            }
+                            stream.flush().unwrap();
                         }
-                    }
-                    Err(e) => {
-                        stream
-                            .write(format!("Error while executing command ({})", e).as_bytes())
-                            .unwrap();
-                    }
-                }
-            }
+                        Err(e) => {
+                            stream
+                                .write(format!("Error while executing command ({})", e).as_bytes())
+                                .unwrap();
+                        }
+                    }}
+
         } else {
             println!("Authentication failed!");
             stream.write_all(FAILED_AUTHENTICATION).unwrap();
