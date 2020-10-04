@@ -2,14 +2,14 @@ use getopts::Options;
 
 #[derive(Clone)]
 pub struct ServerConfig {
-    pub port: usize,
+    pub port: u16,
     pub username: String,
     pub password: String,
 }
 
 pub struct ClientConfig {
     pub host_address: String,
-    pub port: usize,
+    pub port: u16,
     pub username: String,
     pub password: String,
 }
@@ -30,7 +30,7 @@ impl ServerConfig{
             Ok(m) => m,
             Err(f) => panic!(f.to_string()),
         };
-        let port = matches.opt_str("p").unwrap().parse::<usize>().unwrap();
+        let port = matches.opt_str("p").unwrap().parse::<u16>().unwrap();
         let username = matches.opt_str("u").unwrap();
         let password = matches.opt_str("P").unwrap();
         ServerConfig {
@@ -51,7 +51,7 @@ impl ClientConfig{
             Err(f) => panic!(f.to_string()),
         };
         let host_address = matches.opt_str("h").unwrap();
-        let port = matches.opt_str("p").unwrap().parse::<usize>().unwrap();
+        let port = matches.opt_str("p").unwrap().parse::<u16>().unwrap();
         let username = matches.opt_str("u").unwrap();
         let password = matches.opt_str("P").unwrap();
 

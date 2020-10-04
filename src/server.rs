@@ -6,7 +6,7 @@ use std::str;
 use crate::{FAILED_AUTHENTICATION, NULL_RESPONSE, AUTHENTICATED};
 
 pub fn initialize_server(config: ServerConfig) {
-    let listener = bind_to_socket(config.port as u16);
+    let listener = bind_to_socket(config.port);
     listen_for_client(listener, config);
 }
 

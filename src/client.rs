@@ -53,7 +53,7 @@ fn run_client(mut stream: TcpStream){
 }
 
 pub fn initialize_client(config: ClientConfig) {
-    let stream = connect_to_server(config.host_address, config.port as u16);
+    let stream = connect_to_server(config.host_address, config.port);
     authenticate_with_server(stream.try_clone().unwrap(), config.username, config.password);
     run_client(stream);
 }
