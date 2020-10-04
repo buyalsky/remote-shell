@@ -1,4 +1,6 @@
 use getopts::Options;
+
+#[derive(Clone)]
 pub struct ServerConfig {
     pub port: usize,
     pub username: String,
