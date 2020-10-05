@@ -5,9 +5,9 @@ use crate::client::initialize_client;
 use crate::config::{ClientConfig, ServerConfig};
 use crate::server::initialize_server;
 
+mod client;
 mod config;
 mod server;
-mod client;
 
 const AUTHENTICATED: &[u8] = "Authenticated".as_bytes();
 const FAILED_AUTHENTICATION: &[u8] = "Failed".as_bytes();

@@ -1,11 +1,11 @@
 use crate::config::ClientConfig;
-use std::net::{TcpStream, Shutdown};
 use crate::AUTHENTICATED;
-use std::io::{Read, Write};
-use std::process::exit;
 use std::io;
+use std::io::{Read, Write};
+use std::net::{Shutdown, TcpStream};
+use std::process::exit;
 
-fn connect_to_server(host_address: String, port: u16) -> TcpStream{
+fn connect_to_server(host_address: String, port: u16) -> TcpStream {
     let addr = format!("{}:{}", host_address, port);
     TcpStream::connect(addr).unwrap()
 }
@@ -25,7 +25,7 @@ fn authenticate_with_server(mut stream: TcpStream, username: String, password: S
     println!("Authenticated with server!");
 }
 
-fn run_client(mut stream: TcpStream){
+fn run_client(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
     loop {
         let mut input = String::with_capacity(1024);
@@ -54,6 +54,10 @@ fn run_client(mut stream: TcpStream){
 
 pub fn initialize_client(config: ClientConfig) {
     let stream = connect_to_server(config.host_address, config.port);
-    authenticate_with_server(stream.try_clone().unwrap(), config.username, config.password);
+    authenticate_with_server(
+        stream.try_clone().unwrap(),
+        config.username,
+        config.password,
+    );
     run_client(stream);
 }

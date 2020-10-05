@@ -13,7 +13,7 @@ pub struct ClientConfig {
     pub password: String,
 }
 
-fn init_options() -> Options{
+fn init_options() -> Options {
     let mut opts = Options::new();
     opts.optopt("h", "host", "host address", "127.0.0.1");
     opts.optopt("p", "port", "set port", "3333");
@@ -22,7 +22,7 @@ fn init_options() -> Options{
     opts
 }
 
-impl ServerConfig{
+impl ServerConfig {
     pub fn parse_server_config(args: Vec<String>) -> ServerConfig {
         let opts = init_options();
         let matches = match opts.parse(&args[1..]) {
@@ -40,8 +40,7 @@ impl ServerConfig{
     }
 }
 
-
-impl ClientConfig{
+impl ClientConfig {
     pub fn parse_client_config(args: Vec<String>) -> ClientConfig {
         let opts = init_options();
 
@@ -62,4 +61,3 @@ impl ClientConfig{
         }
     }
 }
-
