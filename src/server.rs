@@ -17,7 +17,7 @@ fn bind_to_socket(port: u16) -> TcpListener{
 
 fn listen_for_client(listener: TcpListener, config: ServerConfig){
     for stream in listener.incoming() {
-        serve(stream.unwrap(), config.clone());
+        serve(stream.unwrap(), config.username.clone(), config.password.clone());
     }
 }
 
@@ -46,8 +46,8 @@ fn is_authenticated(mut stream: TcpStream, server_username: String, server_passw
     }
 }
 
-fn serve(stream: TcpStream, config: ServerConfig) {
-    if is_authenticated(stream.try_clone().unwrap(), config.username, config.password) {
+fn serve(stream: TcpStream, server_username: String, server_password: String) {
+    if is_authenticated(stream.try_clone().unwrap(), server_username, server_password) {
         serve_client(stream);
     }
 }
