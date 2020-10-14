@@ -4,6 +4,8 @@ Remote shell has two modes: client and server. Basically the client authenticate
 After that the client takes commands from command line and sends those commands to the server through a tcp connection. 
 Server executes corresponding commands and sends the result back to client.
 
+Server is able to parse pipes as well. To implement this functionality I've followed this [article](https://www.joshmcguigan.com/blog/build-your-own-shell-rust/).
+
 ## Usage
 If you provide host name then the application acts as a client.
 
